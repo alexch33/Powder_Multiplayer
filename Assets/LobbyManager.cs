@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 using Photon.Pun;
@@ -29,11 +27,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void CreateRoom()
     {
+        Log("Creaing room...");
+
         PhotonNetwork.CreateRoom(null, new Photon.Realtime.RoomOptions { MaxPlayers = 2 });
     }
 
     public void JoinRoom()
     {
+        Log("Joining room...");
         PhotonNetwork.JoinRandomRoom();
     }
 
@@ -46,13 +47,13 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     private void Log(string message)
     {
         Debug.Log(message);
-        logText.text = "\n";
-        logText.text = message;
+        logText.text += "\n";
+        logText.text += message;
     }
 }
