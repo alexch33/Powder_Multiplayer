@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System;
 
 using Photon.Pun;
 using Photon.Realtime;
+using ExitGames.Client.Photon;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
@@ -12,14 +14,29 @@ public class GameManager : MonoBehaviourPunCallbacks
     // Start is called before the first frame update
     void Start()
     {
-        Vector3 pos = new Vector3(Random.Range(-5f, 5f), Random.Range(-5f, 5f));
+        Vector3 pos = new Vector3(UnityEngine.Random.Range(-5f, 5f), UnityEngine.Random.Range(-5f, 5f));
         PhotonNetwork.Instantiate(PlayerPrefab.name, pos, Quaternion.identity);
+        PhotonPeer.RegisterType(typeof(Vector2Int), 242, SerializeVector2int, DeserializeVector2Int);
     }
 
-    // Update is called once per frame
-    void Update()
+    public static object DeserializeVector2Int(byte[] data)
     {
+        Vector2Int result = new Vector2Int();
+        result.x = BitConverter.ToInt32(data, 0);
+        result.y = BitConverter.ToInt32(data, 4);
 
+        return result;
+    }
+
+    public static byte[] SerializeVector2int(object data)
+    {
+        byte[] result = new byte[8];
+        Vector2Int vector2Int = (Vector2Int) data;
+
+        BitConverter.GetBytes(vector2Int.x).CopyTo(result, 0);
+        BitConverter.GetBytes(vector2Int.y).CopyTo(result, 4);
+
+        return result;
     }
     
     public void LeaveRoom()
