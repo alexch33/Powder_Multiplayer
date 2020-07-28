@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     // Start is called before the first frame update
     void Start()
     {
-        Vector3 pos = new Vector3(UnityEngine.Random.Range(-5f, 5f), UnityEngine.Random.Range(-5f, 5f));
+        Vector3 pos = new Vector3(UnityEngine.Random.Range(1, 15), UnityEngine.Random.Range(1, 5));
         PhotonNetwork.Instantiate(PlayerPrefab.name, pos, Quaternion.identity);
         PhotonPeer.RegisterType(typeof(Vector2Int), 242, SerializeVector2int, DeserializeVector2Int);
     }

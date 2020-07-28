@@ -11,7 +11,9 @@ public class PlayerControls : MonoBehaviour, IPunObservable
 
     private bool isRed;
 
-    private Vector2Int direction;
+    public Vector2Int direction;
+    public Vector2Int gamePosition;
+
     // Start is called before the first frame update
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -30,6 +32,9 @@ public class PlayerControls : MonoBehaviour, IPunObservable
     {
         photonView = GetComponent<PhotonView>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        gamePosition = new Vector2Int((int) transform.position.x, (int) transform.position.y);
+        FindObjectOfType<MapController>().AddPlayer(this);
     }
 
     // Update is called once per frame
@@ -51,5 +56,7 @@ public class PlayerControls : MonoBehaviour, IPunObservable
         {
             spriteRenderer.flipX = false;
         }
+
+        transform.position = Vector3.Lerp(transform.position, (Vector2) gamePosition, Time.deltaTime * 3);
     }
 }

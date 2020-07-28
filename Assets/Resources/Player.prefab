@@ -119,6 +119,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 772a5e667c531e47089432c16dbb9a52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  direction: {x: 0, y: 0}
+  gamePosition: {x: 0, y: 0}
 --- !u!114 &523415692239304865
 MonoBehaviour:
   m_ObjectHideFlags: 0
