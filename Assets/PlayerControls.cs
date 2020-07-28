@@ -6,8 +6,9 @@ using Photon.Pun;
 
 public class PlayerControls : MonoBehaviour, IPunObservable
 {
-    private PhotonView photonView;
+    public PhotonView photonView;
     private SpriteRenderer spriteRenderer;
+    public Sprite otherSprite;
 
     private bool isRed;
 
@@ -35,6 +36,12 @@ public class PlayerControls : MonoBehaviour, IPunObservable
 
         gamePosition = new Vector2Int((int) transform.position.x, (int) transform.position.y);
         FindObjectOfType<MapController>().AddPlayer(this);
+
+        if (!photonView.IsMine)
+        {
+            spriteRenderer.sprite = otherSprite;
+            spriteRenderer.color = Color.red;
+        }
     }
 
     // Update is called once per frame
