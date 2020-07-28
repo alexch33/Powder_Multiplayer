@@ -14,6 +14,21 @@ public class PlayerControls : MonoBehaviour, IPunObservable
 
     public Vector2Int direction;
     public Vector2Int gamePosition;
+    public Transform Ladder;
+
+    public void SetLadderLength(int length)
+    {
+        for (int i = 0; i < Ladder.childCount; i++)
+        {
+            Ladder.GetChild(i).gameObject.SetActive(i < length);
+        }
+
+        while(Ladder.childCount < length)
+        {
+            Transform lastTile = Ladder.GetChild(Ladder.childCount - 1);
+            Transform obj = Instantiate(lastTile, lastTile.position + Vector3.down, Quaternion.Euler(0, 0, 90), Ladder);
+       }
+    }
 
     // Start is called before the first frame update
 
@@ -25,7 +40,7 @@ public class PlayerControls : MonoBehaviour, IPunObservable
         }
         else
         {
-            direction = (Vector2Int) GameManager.DeserializeVector2Int((byte[]) stream.ReceiveNext());
+            direction = (Vector2Int)GameManager.DeserializeVector2Int((byte[])stream.ReceiveNext());
         }
     }
 
@@ -34,7 +49,7 @@ public class PlayerControls : MonoBehaviour, IPunObservable
         photonView = GetComponent<PhotonView>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        gamePosition = new Vector2Int((int) transform.position.x, (int) transform.position.y);
+        gamePosition = new Vector2Int((int)transform.position.x, (int)transform.position.y);
         FindObjectOfType<MapController>().AddPlayer(this);
 
         if (!photonView.IsMine)
@@ -64,6 +79,6 @@ public class PlayerControls : MonoBehaviour, IPunObservable
             spriteRenderer.flipX = false;
         }
 
-        transform.position = Vector3.Lerp(transform.position, (Vector2) gamePosition, Time.deltaTime * 3);
+        transform.position = Vector3.Lerp(transform.position, (Vector2)gamePosition, Time.deltaTime * 3);
     }
 }

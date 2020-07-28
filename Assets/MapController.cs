@@ -69,23 +69,71 @@ public class MapController : MonoBehaviour, IOnEventCallback
     private void PerformTick(Vector2Int[] directions)
     {
         if (players.Count != directions.Length) return;
+        PlayerControls[] sortedPlayers = players.OrderBy(p => p.photonView.Owner.ActorNumber).ToArray();
 
         int i = 0;
-        foreach (PlayerControls player in players.OrderBy(p => p.photonView.Owner.ActorNumber))
+        foreach (PlayerControls player in sortedPlayers)
         {
             player.direction = directions[i++];
+            MinePlayerBlock(player);
+        }
 
-            player.gamePosition += player.direction;
-
-            if (player.gamePosition.x < 0) player.gamePosition.x = 0;
-            if (player.gamePosition.y < 0) player.gamePosition.y = 0;
-            if (player.gamePosition.x >= cells.GetLength(0)) player.gamePosition.x = cells.GetLength(0) - 1;
-            if (player.gamePosition.y >= cells.GetLength(1)) player.gamePosition.y = cells.GetLength(1) - 1;
-
-            cells[player.gamePosition.x, player.gamePosition.y].SetActive(false);
+        foreach (PlayerControls player in sortedPlayers)
+        {
+            MovePlayer(player);
         }
 
         lastTick = PhotonNetwork.Time;
+    }
+
+    private void MinePlayerBlock(PlayerControls player)
+    {
+        Vector2Int targetPosition = player.gamePosition + player.direction;
+
+        if (targetPosition.x < 0) return;
+        if (targetPosition.y < 0) return;
+        if (targetPosition.x >= cells.GetLength(0)) return;
+        if (targetPosition.y >= cells.GetLength(1)) return;
+
+        cells[targetPosition.x, targetPosition.y].SetActive(false);
+
+        Vector2Int pos = targetPosition;
+        PlayerControls minePlayer = players.First(p => p.photonView.IsMine);
+
+        if (minePlayer != player)
+        {
+            while (pos.y < cells.GetLength(1) && !cells[pos.x, pos.y].activeSelf)
+            {
+                if (pos == minePlayer.gamePosition)
+                {
+                    PhotonNetwork.LeaveRoom();
+                    break;
+                }
+                pos.y++;
+            }
+        }
+
+
+    }
+
+    private void MovePlayer(PlayerControls player)
+    {
+        player.gamePosition += player.direction;
+
+        if (player.gamePosition.x < 0) player.gamePosition.x = 0;
+        if (player.gamePosition.y < 0) player.gamePosition.y = 0;
+        if (player.gamePosition.x >= cells.GetLength(0)) player.gamePosition.x = cells.GetLength(0) - 1;
+        if (player.gamePosition.y >= cells.GetLength(1)) player.gamePosition.y = cells.GetLength(1) - 1;
+
+        int ladderLength = 0;
+        Vector2Int pos = player.gamePosition;
+
+        while (pos.y > 0 && !cells[pos.x, pos.y - 1].activeSelf)
+        {
+            ladderLength++;
+            pos.y--;
+        }
+        player.SetLadderLength(ladderLength);
     }
 
     public void OnEnable()
