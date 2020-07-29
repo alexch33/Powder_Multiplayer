@@ -494,6 +494,7 @@ MonoBehaviour:
   gamePosition: {x: 0, y: 0}
   Ladder: {fileID: 7186007519841872009}
   isDead: 0
+  score: 0
 --- !u!1 &9083818027713435732
 GameObject:
   m_ObjectHideFlags: 0

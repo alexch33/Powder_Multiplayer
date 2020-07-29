@@ -1,18 +1,20 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 using Photon.Pun;
 
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
     public Text logText;
-
+    public TMP_InputField NickName;
     // Start is called before the first frame update
     void Start()
     {
         PhotonNetwork.AutomaticallySyncScene = true;
 
-        PhotonNetwork.NickName = "Player" + Random.Range(1000, 9000);
+        PhotonNetwork.NickName = PlayerPrefs.GetString("nick", "Player" + Random.Range(1000, 9000));
+        NickName.text = PhotonNetwork.NickName;
         Log("Player's name set to " + PhotonNetwork.NickName);
 
         PhotonNetwork.GameVersion = "1";
@@ -28,13 +30,22 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public void CreateRoom()
     {
         Log("Creaing room...");
-
+        if (NickName.text != null && NickName.text.Length > 0)
+        {
+            PlayerPrefs.SetString("nick", NickName.text);
+            PhotonNetwork.NickName = NickName.text;
+        }
         PhotonNetwork.CreateRoom(null, new Photon.Realtime.RoomOptions { MaxPlayers = 2, CleanupCacheOnLeave = false });
     }
 
     public void JoinRoom()
     {
         Log("Joining room...");
+        if (NickName.text != null && NickName.text.Length > 0)
+        {
+            PlayerPrefs.SetString("nick", NickName.text);
+            PhotonNetwork.NickName = NickName.text;
+        }
         PhotonNetwork.JoinRandomRoom();
     }
 

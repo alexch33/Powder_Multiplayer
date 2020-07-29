@@ -22,6 +22,8 @@ public class PlayerControls : MonoBehaviour, IPunObservable
 
     public bool isDead;
 
+    public int score = 0;
+
     public void Kill()
     {
         isDead = true;
@@ -70,7 +72,7 @@ public class PlayerControls : MonoBehaviour, IPunObservable
         if (!photonView.IsMine)
         {
             NicknameText.color = Color.green;
-            
+
             spriteRenderer.sprite = otherSprite;
             spriteRenderer.color = Color.red;
         }

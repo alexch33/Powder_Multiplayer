@@ -11,6 +11,8 @@ public class MapController : MonoBehaviour, IOnEventCallback
 {
     public GameObject cellPrefab;
 
+    public PlayersTop playersTop;
+
     private GameObject[,] cells;
     public List<PlayerControls> players = new List<PlayerControls>();
     public List<PlayerControls> deadPlayers = new List<PlayerControls>();
@@ -95,6 +97,8 @@ public class MapController : MonoBehaviour, IOnEventCallback
             player.gamePosition = pos;
         }
 
+        playersTop.SetTexts(players);
+        
         lastTick = PhotonNetwork.Time;
     }
 
@@ -107,7 +111,11 @@ public class MapController : MonoBehaviour, IOnEventCallback
         if (targetPosition.x >= cells.GetLength(0)) return;
         if (targetPosition.y >= cells.GetLength(1)) return;
 
-        cells[targetPosition.x, targetPosition.y].SetActive(false);
+        if (cells[targetPosition.x, targetPosition.y].activeSelf)
+        {
+            cells[targetPosition.x, targetPosition.y].SetActive(false);
+            player.score++;
+        }
 
         Vector2Int pos = targetPosition;
         PlayerControls minePlayer = players.First(p => p.photonView.IsMine);
