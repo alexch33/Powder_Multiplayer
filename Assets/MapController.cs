@@ -128,7 +128,7 @@ public class MapController : MonoBehaviour, IOnEventCallback
         int ladderLength = 0;
         Vector2Int pos = player.gamePosition;
 
-        while (pos.y > 0 && !cells[pos.x, pos.y - 1].activeSelf)
+        while (pos.y > 0 && !cells[pos.x, pos.y].activeSelf)
         {
             ladderLength++;
             pos.y--;
