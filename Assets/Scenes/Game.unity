@@ -457,6 +457,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cellPrefab: {fileID: 3531451126605447466, guid: 358a581a7273726cf921b26220d66ffb,
     type: 3}
+  players: []
 --- !u!1 &1576765621
 GameObject:
   m_ObjectHideFlags: 0
@@ -554,6 +555,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerPrefab: {fileID: 8211306761532204042, guid: 21d640aaa6e466e31a607f96ffabaf2d,
     type: 3}
+  mapController: {fileID: 970807322}
 --- !u!4 &1623645750
 Transform:
   m_ObjectHideFlags: 0

@@ -29,7 +29,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         Log("Creaing room...");
 
-        PhotonNetwork.CreateRoom(null, new Photon.Realtime.RoomOptions { MaxPlayers = 2 });
+        PhotonNetwork.CreateRoom(null, new Photon.Realtime.RoomOptions { MaxPlayers = 2, CleanupCacheOnLeave = false });
     }
 
     public void JoinRoom()

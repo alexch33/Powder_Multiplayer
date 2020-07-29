@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 using Photon.Pun;
 
@@ -9,12 +10,25 @@ public class PlayerControls : MonoBehaviour, IPunObservable
     public PhotonView photonView;
     private SpriteRenderer spriteRenderer;
     public Sprite otherSprite;
+    public Sprite deadSprite;
+    public TextMeshPro NicknameText;
+
 
     private bool isRed;
 
     public Vector2Int direction;
     public Vector2Int gamePosition;
     public Transform Ladder;
+
+    public bool isDead;
+
+    public void Kill()
+    {
+        isDead = true;
+        spriteRenderer.sprite = deadSprite;
+
+        SetLadderLength(0);
+    }
 
     public void SetLadderLength(int length)
     {
@@ -23,11 +37,11 @@ public class PlayerControls : MonoBehaviour, IPunObservable
             Ladder.GetChild(i).gameObject.SetActive(i < length);
         }
 
-        while(Ladder.childCount < length)
+        while (Ladder.childCount < length)
         {
             Transform lastTile = Ladder.GetChild(Ladder.childCount - 1);
             Transform obj = Instantiate(lastTile, lastTile.position + Vector3.down, Quaternion.Euler(0, 0, 90), Ladder);
-       }
+        }
     }
 
     // Start is called before the first frame update
@@ -52,8 +66,11 @@ public class PlayerControls : MonoBehaviour, IPunObservable
         gamePosition = new Vector2Int((int)transform.position.x, (int)transform.position.y);
         FindObjectOfType<MapController>().AddPlayer(this);
 
+        NicknameText.text = photonView.Owner.NickName;
         if (!photonView.IsMine)
         {
+            NicknameText.color = Color.green;
+            
             spriteRenderer.sprite = otherSprite;
             spriteRenderer.color = Color.red;
         }
@@ -62,7 +79,7 @@ public class PlayerControls : MonoBehaviour, IPunObservable
     // Update is called once per frame
     void Update()
     {
-        if (photonView.IsMine)
+        if (photonView.IsMine && !isDead)
         {
             if (Input.GetKey(KeyCode.LeftArrow)) direction = Vector2Int.left;
             if (Input.GetKey(KeyCode.RightArrow)) direction = Vector2Int.right;

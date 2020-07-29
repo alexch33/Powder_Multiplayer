@@ -12,7 +12,8 @@ public class MapController : MonoBehaviour, IOnEventCallback
     public GameObject cellPrefab;
 
     private GameObject[,] cells;
-    private List<PlayerControls> players = new List<PlayerControls>();
+    public List<PlayerControls> players = new List<PlayerControls>();
+    public List<PlayerControls> deadPlayers = new List<PlayerControls>();
 
     private double lastTick;
 
@@ -43,7 +44,7 @@ public class MapController : MonoBehaviour, IOnEventCallback
         if (PhotonNetwork.Time > lastTick + 1 &&
             PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount >= 2)
         {
-            Vector2Int[] directions = players.OrderBy(p => p.photonView.Owner.ActorNumber).Select(p => p.direction).ToArray();
+            Vector2Int[] directions = players.Where(players => !players.isDead).OrderBy(p => p.photonView.Owner.ActorNumber).Select(p => p.direction).ToArray();
 
             RaiseEventOptions options = new RaiseEventOptions { Receivers = ReceiverGroup.Others };
             SendOptions sendOptions = new SendOptions { Reliability = true };
@@ -69,7 +70,7 @@ public class MapController : MonoBehaviour, IOnEventCallback
     private void PerformTick(Vector2Int[] directions)
     {
         if (players.Count != directions.Length) return;
-        PlayerControls[] sortedPlayers = players.OrderBy(p => p.photonView.Owner.ActorNumber).ToArray();
+        PlayerControls[] sortedPlayers = players.Where(players => !players.isDead).OrderBy(p => p.photonView.Owner.ActorNumber).ToArray();
 
         int i = 0;
         foreach (PlayerControls player in sortedPlayers)
@@ -81,6 +82,17 @@ public class MapController : MonoBehaviour, IOnEventCallback
         foreach (PlayerControls player in sortedPlayers)
         {
             MovePlayer(player);
+        }
+
+        foreach (PlayerControls player in players.Where(players => players.isDead))
+        {
+            Vector2Int pos = player.gamePosition;
+
+            while (pos.y > 0 && !cells[pos.x, pos.y].activeSelf)
+            {
+                pos.y--;
+            }
+            player.gamePosition = pos;
         }
 
         lastTick = PhotonNetwork.Time;
@@ -106,6 +118,7 @@ public class MapController : MonoBehaviour, IOnEventCallback
             {
                 if (pos == minePlayer.gamePosition)
                 {
+                    minePlayer.Kill();
                     PhotonNetwork.LeaveRoom();
                     break;
                 }
