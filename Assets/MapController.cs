@@ -57,6 +57,36 @@ public class MapController : MonoBehaviour, IOnEventCallback
         }
     }
 
+    public void SendSyncData(Player player)
+    {
+        SyncData data = new SyncData();
+
+        data.positions = new Vector2Int[players.Count];
+        data.scores = new int[players.Count];
+
+        PlayerControls[] sortedPlayers = players.Where(p => !p.isDead).OrderBy(p => p.photonView.Owner.ActorNumber).ToArray();
+
+        for (int i = 0; i < sortedPlayers.Length; i++)
+        {
+            data.positions[i] = sortedPlayers[i].gamePosition;
+            data.scores[i] = sortedPlayers[i].score;
+        }
+
+        data.mapData = new BitArray(20 * 10);
+        for (int x = 0; x < cells.GetLength(0); x++)
+        {
+            for (int y = 0; y < cells.GetLength(1); y++)
+            {
+                data.mapData.Set(x + y * cells.GetLength(0), cells[x, y].activeSelf);
+            }
+        }
+
+        RaiseEventOptions options = new RaiseEventOptions { TargetActors = new[] { player.ActorNumber } };
+        SendOptions sendOptions = new SendOptions { Reliability = true };
+        PhotonNetwork.RaiseEvent(43, data, options, sendOptions);
+
+    }
+
     public void OnEvent(EventData photonEvent)
     {
         switch (photonEvent.Code)
@@ -66,6 +96,39 @@ public class MapController : MonoBehaviour, IOnEventCallback
 
                 PerformTick(directions);
                 break;
+            case 43:
+                SyncData data = (SyncData)photonEvent.CustomData;
+
+                StartCoroutine(OnSyncDataRecived(data));
+                break;
+        }
+    }
+
+    private IEnumerator OnSyncDataRecived(SyncData data)
+    {
+        PlayerControls[] sortedPlayers;
+        do
+        {
+            yield return null;
+            sortedPlayers = players.Where(p => !p.isDead).Where(p => !p.photonView.IsMine).OrderBy(p => p.photonView.Owner.ActorNumber).ToArray();
+        } while (sortedPlayers.Length != data.positions.Length);
+
+
+        for (int i = 0; i < sortedPlayers.Length; i++)
+        {
+            sortedPlayers[i].gamePosition = data.positions[i];
+            sortedPlayers[i].score = data.scores[i];
+
+            sortedPlayers[i].transform.position = (Vector2)sortedPlayers[i].gamePosition;
+        }
+
+        for (int x = 0; x < cells.GetLength(0); x++)
+        {
+            for (int y = 0; y < cells.GetLength(1); y++)
+            {
+                bool cellActive = data.mapData.Get(x + y * cells.GetLength(0));
+                if (!cellActive) cells[x, y].SetActive(cellActive);
+            }
         }
     }
 
@@ -98,12 +161,17 @@ public class MapController : MonoBehaviour, IOnEventCallback
         }
 
         playersTop.SetTexts(players);
-        
+
         lastTick = PhotonNetwork.Time;
     }
 
     private void MinePlayerBlock(PlayerControls player)
     {
+        if (player.direction == Vector2Int.zero)
+        {
+            return;
+        }
+
         Vector2Int targetPosition = player.gamePosition + player.direction;
 
         if (targetPosition.x < 0) return;

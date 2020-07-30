@@ -35,7 +35,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             PlayerPrefs.SetString("nick", NickName.text);
             PhotonNetwork.NickName = NickName.text;
         }
-        PhotonNetwork.CreateRoom(null, new Photon.Realtime.RoomOptions { MaxPlayers = 2, CleanupCacheOnLeave = false });
+        PhotonNetwork.CreateRoom(null, new Photon.Realtime.RoomOptions { MaxPlayers = 20, CleanupCacheOnLeave = false });
     }
 
     public void JoinRoom()

@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         Vector3 pos = new Vector3(UnityEngine.Random.Range(1, 15), UnityEngine.Random.Range(1, 5));
         PhotonNetwork.Instantiate(PlayerPrefab.name, pos, Quaternion.identity);
         PhotonPeer.RegisterType(typeof(Vector2Int), 242, SerializeVector2int, DeserializeVector2Int);
+        PhotonPeer.RegisterType(typeof(SyncData), 243, SyncData.Serialize, SyncData.Deserialize);
     }
 
     public static object DeserializeVector2Int(byte[] data)
@@ -54,6 +55,10 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            mapController.SendSyncData(newPlayer);
+        }
         Debug.LogFormat("Player {0} entered room", newPlayer.NickName);
     }
 
@@ -61,7 +66,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         mapController.players = mapController.deadPlayers;
 
-        PlayerControls player = mapController.players.FirstOrDefault(p=>p.photonView.Owner.ActorNumber == otherPlayer.ActorNumber);
+        PlayerControls player = mapController.players.FirstOrDefault(p => p.photonView.Owner.ActorNumber == otherPlayer.ActorNumber);
 
         if (player != null) player.Kill();
         Debug.LogFormat("Player {0} left room", otherPlayer.NickName);
