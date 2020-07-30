@@ -34,6 +34,8 @@ public class PlayerControls : MonoBehaviour, IPunObservable
 
     public void SetLadderLength(int length)
     {
+        if (Ladder == null) return;
+
         for (int i = 0; i < Ladder.childCount; i++)
         {
             Ladder.GetChild(i).gameObject.SetActive(i < length);

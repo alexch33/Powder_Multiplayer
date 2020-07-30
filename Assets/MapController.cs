@@ -72,12 +72,12 @@ public class MapController : MonoBehaviour, IOnEventCallback
             data.scores[i] = sortedPlayers[i].score;
         }
 
-        data.mapData = new BitArray(20 * 10);
+        data.mapData = new bool[cells.GetLength(0), cells.GetLength(1)];
         for (int x = 0; x < cells.GetLength(0); x++)
         {
             for (int y = 0; y < cells.GetLength(1); y++)
             {
-                data.mapData.Set(x + y * cells.GetLength(0), cells[x, y].activeSelf);
+                data.mapData[x, y] = cells[x, y].activeSelf;
             }
         }
 
@@ -98,7 +98,6 @@ public class MapController : MonoBehaviour, IOnEventCallback
                 break;
             case 43:
                 SyncData data = (SyncData)photonEvent.CustomData;
-
                 StartCoroutine(OnSyncDataRecived(data));
                 break;
         }
@@ -126,7 +125,7 @@ public class MapController : MonoBehaviour, IOnEventCallback
         {
             for (int y = 0; y < cells.GetLength(1); y++)
             {
-                bool cellActive = data.mapData.Get(x + y * cells.GetLength(0));
+                bool cellActive = data.mapData[x, y];
                 if (!cellActive) cells[x, y].SetActive(cellActive);
             }
         }
@@ -147,17 +146,6 @@ public class MapController : MonoBehaviour, IOnEventCallback
         foreach (PlayerControls player in sortedPlayers)
         {
             MovePlayer(player);
-        }
-
-        foreach (PlayerControls player in players.Where(players => players.isDead))
-        {
-            Vector2Int pos = player.gamePosition;
-
-            while (pos.y > 0 && !cells[pos.x, pos.y].activeSelf)
-            {
-                pos.y--;
-            }
-            player.gamePosition = pos;
         }
 
         playersTop.SetTexts(players);
@@ -194,7 +182,6 @@ public class MapController : MonoBehaviour, IOnEventCallback
             {
                 if (pos == minePlayer.gamePosition)
                 {
-                    minePlayer.Kill();
                     PhotonNetwork.LeaveRoom();
                     break;
                 }
