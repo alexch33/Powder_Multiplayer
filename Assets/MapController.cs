@@ -6,14 +6,16 @@ using System.Linq;
 using Photon.Realtime;
 using Photon.Pun;
 using ExitGames.Client.Photon;
+using UnityEngine.Tilemaps;
 
 public class MapController : MonoBehaviour, IOnEventCallback
 {
-    public GameObject cellPrefab;
+    public TileBase cellTile;
+    public Tilemap tilemap;
 
     public PlayersTop playersTop;
 
-    private GameObject[,] cells;
+    private bool[,] cells;
     public List<PlayerControls> players = new List<PlayerControls>();
     public List<PlayerControls> deadPlayers = new List<PlayerControls>();
 
@@ -22,20 +24,26 @@ public class MapController : MonoBehaviour, IOnEventCallback
     public void AddPlayer(PlayerControls player)
     {
         players.Add(player);
-        cells[player.gamePosition.x, player.gamePosition.y].SetActive(false);
+        SetCell(player.gamePosition, false);
+    }
+
+    public void SetCell(Vector2Int pos, bool set)
+    {
+        cells[pos.x, pos.y] = set;
+        tilemap.SetTile((Vector3Int) pos, set ? cellTile : null);
     }
 
 
     // Start is called before the first frame update
     void Start()
     {
-        cells = new GameObject[20, 10];
+        cells = new bool[20, 10];
 
         for (int x = 0; x < cells.GetLength(0); x++)
         {
             for (int y = 0; y < cells.GetLength(1); y++)
             {
-                cells[x, y] = Instantiate(cellPrefab, new Vector3(x, y), Quaternion.identity, transform);
+                SetCell(new Vector2Int(x, y), true);
             }
         }
     }
@@ -72,14 +80,7 @@ public class MapController : MonoBehaviour, IOnEventCallback
             data.scores[i] = sortedPlayers[i].score;
         }
 
-        data.mapData = new bool[cells.GetLength(0), cells.GetLength(1)];
-        for (int x = 0; x < cells.GetLength(0); x++)
-        {
-            for (int y = 0; y < cells.GetLength(1); y++)
-            {
-                data.mapData[x, y] = cells[x, y].activeSelf;
-            }
-        }
+        data.mapData = cells;
 
         RaiseEventOptions options = new RaiseEventOptions { TargetActors = new[] { player.ActorNumber } };
         SendOptions sendOptions = new SendOptions { Reliability = true };
@@ -126,7 +127,7 @@ public class MapController : MonoBehaviour, IOnEventCallback
             for (int y = 0; y < cells.GetLength(1); y++)
             {
                 bool cellActive = data.mapData[x, y];
-                if (!cellActive) cells[x, y].SetActive(cellActive);
+                if (!cellActive) SetCell(new Vector2Int(x, y), false);
             }
         }
     }
@@ -167,9 +168,9 @@ public class MapController : MonoBehaviour, IOnEventCallback
         if (targetPosition.x >= cells.GetLength(0)) return;
         if (targetPosition.y >= cells.GetLength(1)) return;
 
-        if (cells[targetPosition.x, targetPosition.y].activeSelf)
+        if (cells[targetPosition.x, targetPosition.y])
         {
-            cells[targetPosition.x, targetPosition.y].SetActive(false);
+            SetCell(targetPosition, false);
             player.score++;
         }
 
@@ -178,7 +179,7 @@ public class MapController : MonoBehaviour, IOnEventCallback
 
         if (minePlayer != player)
         {
-            while (pos.y < cells.GetLength(1) && !cells[pos.x, pos.y].activeSelf)
+            while (pos.y < cells.GetLength(1) && !cells[pos.x, pos.y])
             {
                 if (pos == minePlayer.gamePosition)
                 {
@@ -204,7 +205,7 @@ public class MapController : MonoBehaviour, IOnEventCallback
         int ladderLength = 0;
         Vector2Int pos = player.gamePosition;
 
-        while (pos.y > 0 && !cells[pos.x, pos.y].activeSelf)
+        while (pos.y > 0 && !cells[pos.x, pos.y])
         {
             ladderLength++;
             pos.y--;
