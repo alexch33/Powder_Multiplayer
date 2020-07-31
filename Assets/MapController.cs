@@ -11,6 +11,7 @@ using UnityEngine.Tilemaps;
 public class MapController : MonoBehaviour, IOnEventCallback
 {
     public TileBase cellTile;
+    public TileBase bedRockTile;
     public Tilemap tilemap;
 
     public PlayersTop playersTop;
@@ -37,7 +38,7 @@ public class MapController : MonoBehaviour, IOnEventCallback
     // Start is called before the first frame update
     void Start()
     {
-        cells = new bool[20, 10];
+        cells = new bool[30, 30];
 
         for (int x = 0; x < cells.GetLength(0); x++)
         {
@@ -46,13 +47,25 @@ public class MapController : MonoBehaviour, IOnEventCallback
                 SetCell(new Vector2Int(x, y), true);
             }
         }
+
+        for (int x = 0; x < cells.GetLength(0); x++)
+        {
+            tilemap.SetTile(new Vector3Int(x, -1, 0), bedRockTile);
+            tilemap.SetTile(new Vector3Int(x, cells.GetLength(1), 0), bedRockTile);
+        }
+
+        for (int y = 0; y < cells.GetLength(1); y++)
+        {
+            tilemap.SetTile(new Vector3Int(-1, y, 0), bedRockTile);
+            tilemap.SetTile(new Vector3Int(cells.GetLength(0), y, 0), bedRockTile);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
         if (PhotonNetwork.Time > lastTick + 1 &&
-            PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount >= 2)
+            PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount >= 1)
         {
             Vector2Int[] directions = players.Where(players => !players.isDead).OrderBy(p => p.photonView.Owner.ActorNumber).Select(p => p.direction).ToArray();
 

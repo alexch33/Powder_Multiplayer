@@ -24,6 +24,8 @@ public class PlayerControls : MonoBehaviour, IPunObservable
 
     public int score = 0;
 
+    private Vector2 touchStarted;
+
     public void Kill()
     {
         isDead = true;
@@ -78,6 +80,10 @@ public class PlayerControls : MonoBehaviour, IPunObservable
             spriteRenderer.sprite = otherSprite;
             spriteRenderer.color = Color.red;
         }
+        else
+        {
+            FindObjectOfType<CameraPlayerFollower>().target = this.transform;
+        }
     }
 
     // Update is called once per frame
@@ -85,10 +91,7 @@ public class PlayerControls : MonoBehaviour, IPunObservable
     {
         if (photonView.IsMine && !isDead)
         {
-            if (Input.GetKey(KeyCode.LeftArrow)) direction = Vector2Int.left;
-            if (Input.GetKey(KeyCode.RightArrow)) direction = Vector2Int.right;
-            if (Input.GetKey(KeyCode.UpArrow)) direction = Vector2Int.up;
-            if (Input.GetKey(KeyCode.DownArrow)) direction = Vector2Int.down;
+            HandleInput();
         }
 
         if (direction == Vector2Int.left)
@@ -101,5 +104,49 @@ public class PlayerControls : MonoBehaviour, IPunObservable
         }
 
         transform.position = Vector3.Lerp(transform.position, (Vector2)gamePosition, Time.deltaTime * 3);
+    }
+
+    private void HandleInput()
+    {
+        if (Input.GetKey(KeyCode.LeftArrow)) direction = Vector2Int.left;
+        if (Input.GetKey(KeyCode.RightArrow)) direction = Vector2Int.right;
+        if (Input.GetKey(KeyCode.UpArrow)) direction = Vector2Int.up;
+        if (Input.GetKey(KeyCode.DownArrow)) direction = Vector2Int.down;
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            touchStarted = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
+            Vector2 touchEnded = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 swipe = touchEnded - touchStarted;
+
+            if (swipe.magnitude > 2)
+            {
+                if (Mathf.Abs(swipe.x) > Mathf.Abs(swipe.y))
+                {
+                    if (swipe.x > 0)
+                    {
+                        direction = Vector2Int.right;
+                    }
+                    else
+                    {
+                        direction = Vector2Int.left;
+                    }
+                }
+                else
+                {
+                    if (swipe.y > 0)
+                    {
+                        direction = Vector2Int.up;
+                    }
+                    else
+                    {
+                        direction = Vector2Int.down;
+                    }
+                }
+            }
+        }
     }
 }

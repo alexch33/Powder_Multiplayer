@@ -336,7 +336,7 @@ RectTransform:
   m_GameObject: {fileID: 261383662}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children:
   - {fileID: 274673778}
   m_Father: {fileID: 2009630472}
@@ -344,7 +344,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -0.000027656555, y: -47.500004}
+  m_AnchoredPosition: {x: -177, y: -50}
   m_SizeDelta: {x: 160, y: 29}
   m_Pivot: {x: 0.49999985, y: 0.49999994}
 --- !u!114 &261383664
@@ -472,7 +472,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0000076293945, y: 0.0000038146973}
+  m_AnchoredPosition: {x: 0, y: 0.0000038146973}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.4628945, y: 0.4999999}
 --- !u!114 &274673779
@@ -635,8 +635,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -139.3, y: -92.3}
-  m_SizeDelta: {x: 255.2714, y: 157.81229}
+  m_AnchoredPosition: {x: -139.3, y: -154.3}
+  m_SizeDelta: {x: 255.2714, y: 281.90216}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &317911128
 MonoBehaviour:
@@ -801,6 +801,7 @@ GameObject:
   - component: {fileID: 519420032}
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
+  - component: {fileID: 519420030}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -816,6 +817,19 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
+--- !u!114 &519420030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56251eb79c2f71244b0a408e12d568ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -1039,6 +1053,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cellTile: {fileID: 11400000, guid: 018bab1955bcd48de93b8a9435bf7311, type: 2}
+  bedRockTile: {fileID: 11400000, guid: a3c47ec8900638421b369a8a0738f342, type: 2}
   tilemap: {fileID: 179031276}
   playersTop: {fileID: 317911131}
   players: []
